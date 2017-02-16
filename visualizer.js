@@ -4,7 +4,7 @@ var analyser;
 var freqBinCount, bufferSize;
 var barWidth, barHeight;
 
-const WIDTH = 600, HEIGHT = 300;
+const WIDTH = 1200, HEIGHT = 512;
 
 window.onload = function() {
 	canvas = document.getElementById("main-canvas");
@@ -17,7 +17,7 @@ window.onload = function() {
 
 function Visualize(){
 	audioContext = new AudioContext();
-	var input = document.getElementById("audioFile");
+	var input = document.getElementById("audio-file");
 	var file = input.files[0];
 	var fr = new FileReader();
 	fr.readAsArrayBuffer(file);
