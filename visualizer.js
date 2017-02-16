@@ -1,18 +1,22 @@
+var audioContext;
+var canvas, canvasContext;
+var analyser;
+var freqBinCount, bufferSize;
+var barWidth, barHeight;
+
+const WIDTH = 600, HEIGHT = 300;
+
 window.onload = function() {
-	var canvas = document.getElementById("mainCanvas");
-	var canvasContext = canvas.getContext("2d");
-	canvasContext.fillStyle = "#97084f";
-	canvasContext.fillRect(0, 0, 800, 300);
+	canvas = document.getElementById("main-canvas");
+	canvasContext = canvas.getContext("2d");
 
-	if (window.File && window.FileReader && window.FileList && window.Blob) {
-
-	} else {
-		alert("Browser does not support File API.");
+	if ((window.File || window.FileReader || window.FileList || window.Blob) == false) {
+		alert("Browser does not support the File API.");
 	}
 }
 
 function Visualize(){
-	var audioData, decodedData;
+	audioContext = new AudioContext();
 	var input = document.getElementById("audioFile");
 	var file = input.files[0];
 	var fr = new FileReader();
@@ -20,29 +24,41 @@ function Visualize(){
 	fr.onload = function() {
 			var audioData = fr.result;
 			console.log(audioData);
-			var audioCtx = new AudioContext();
-			audioCtx.decodeAudioData(audioData).then(function(decodedAudioData) {
-				decodedData = decodedAudioData;
-				console.log(decodedAudioData);
-				AnalyseAudio(decodedData);
+			audioContext.decodeAudioData(audioData).then(function(decodedData) {
+				console.log(decodedData);
+				var audioSourceNode = new AudioBufferSourceNode(audioContext);
+				audioSourceNode.buffer = decodedData;
+				audioSourceNode.start();
+				AnalyseAudio(audioSourceNode);
 		});
 	}
 }
 
-function AnalyseAudio(audioData) {
-	var audioContext = new AudioContext()
-	var analyser = new AnalyserNode(audioContext);
-	var bufferSize = 4096;
+function AnalyseAudio(audioSourceNode) {
+	bufferSize = 4096;
+	freqBinCount = bufferSize / 2;
+	analyser = new AnalyserNode(audioContext);
 	analyser.fftSize = bufferSize;
-	console.log(analyser);
+	analyser.smoothingTimeConstant = 0.95;
 
-	var dataArray = new Float32Array(bufferSize);
-	analyser.getFloatFrequencyData(dataArray);
-	Draw(dataArray, bufferSize);
+	audioSourceNode.connect(analyser);
+	analyser.connect(audioContext.destination);
+
+	console.log(analyser);
+	dataArray = new Float32Array(bufferSize / 2);
+	window.requestAnimationFrame(Draw);
 }
 
-function Draw(dataArray, bufferLength) {
-	var canvas = document.getElementById("mainCanvas");
-	var canvasContext = canvas.getContext("2d");
-
+function Draw() {
+	window.requestAnimationFrame(Draw);
+	analyser.getFloatFrequencyData(dataArray);
+	canvasContext.fillStyle = "#33cc33";
+	barWidth = WIDTH / freqBinCount;
+	var x = 0;
+	canvasContext.clearRect(0, 0, WIDTH, HEIGHT);
+	for (var i = 0; i < freqBinCount; i++) {
+		barHeight = (256 + dataArray[i]) * 2 - 210;
+		canvasContext.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+		x += barWidth;
+	}
 }
