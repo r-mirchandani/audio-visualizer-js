@@ -3,6 +3,8 @@ var canvas, canvasContext;
 var analyser;
 var freqBinCount, bufferSize;
 var barWidth, barHeight;
+var multiplier = 6;
+var cutoff = 150;
 
 const WIDTH = 1200, HEIGHT = 512;
 
@@ -57,7 +59,8 @@ function Draw() {
 	var x = 0;
 	canvasContext.clearRect(0, 0, WIDTH, HEIGHT);
 	for (var i = 0; i < freqBinCount; i++) {
-		barHeight = (256 + dataArray[i]) * 2 - 210;
+		//barHeight = (256 + dataArray[i]);
+		barHeight = ((256 + dataArray[i]) - cutoff) * multiplier;
 		canvasContext.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
 		x += barWidth;
 	}
