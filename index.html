@@ -4,11 +4,17 @@
 		<title>Audio Visualizer</title>
 		<script src="visualizer.js" type="text/javascript"></script>
 		<script type="text/javascript" src="https://ajax.microsoft.com/ajax/jQuery/jquery-1.4.2.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css" />
 	</head>
 	<body>
 		<p>Audio Visualizer</p>
-		<input id="audioFile" type="file" accept="audio/*" name="Upload"> <br><br>
-		<canvas id="mainCanvas" width="800" height="300" style="border:1px solid #000000"></canvas><br><br>
-		<button type="button" id="startButton" onclick="Visualize()">Visualize!</button>
+
+		<div class="canvas-wrapper">
+			<div class="dragndrop-wrapper">
+				<input class="buttons" id="audioFile" type="file" accept="audio/*" name="Upload"> <br><br>
+			</div>
+			<canvas id="main-canvas" width="600" height="256"></canvas>
+		</div>
+		<button class="buttons" id="startButton" onclick="Visualize()">Visualize!</button>
 	</body>
 </html>
