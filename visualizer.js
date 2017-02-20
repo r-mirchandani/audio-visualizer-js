@@ -1,6 +1,6 @@
 var audioContext;
 var canvas, canvasContext;
-var analyser;
+var analyser, audioSourceNode;
 var freqBinCount, bufferSize;
 var barWidth, barHeight;
 var multiplier = 6;
@@ -18,6 +18,9 @@ window.onload = function() {
 }
 
 function Visualize(){
+	if (audioSourceNode){
+		audioSourceNode.stop();
+	}
 	audioContext = new AudioContext();
 	var input = document.getElementById("audio-file");
 	var file = input.files[0];
@@ -28,7 +31,7 @@ function Visualize(){
 			console.log(audioData);
 			audioContext.decodeAudioData(audioData).then(function(decodedData) {
 				console.log(decodedData);
-				var audioSourceNode = new AudioBufferSourceNode(audioContext);
+				audioSourceNode = new AudioBufferSourceNode(audioContext);
 				audioSourceNode.buffer = decodedData;
 				audioSourceNode.start();
 				AnalyseAudio(audioSourceNode);
@@ -41,7 +44,7 @@ function AnalyseAudio(audioSourceNode) {
 	freqBinCount = bufferSize / 2;
 	analyser = new AnalyserNode(audioContext);
 	analyser.fftSize = bufferSize;
-	analyser.smoothingTimeConstant = 0.95;
+	analyser.smoothingTimeConstant = 0.85;
 
 	audioSourceNode.connect(analyser);
 	analyser.connect(audioContext.destination);
@@ -59,7 +62,6 @@ function Draw() {
 	var x = 0;
 	canvasContext.clearRect(0, 0, WIDTH, HEIGHT);
 	for (var i = 0; i < freqBinCount; i++) {
-		//barHeight = (256 + dataArray[i]);
 		barHeight = ((256 + dataArray[i]) - cutoff) * multiplier;
 		canvasContext.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
 		x += barWidth;
